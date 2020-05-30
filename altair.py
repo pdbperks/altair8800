@@ -1,6 +1,6 @@
 # Altair 8800 emulator for BBC Micro:bit
 # UI code
-# run code for sample program in original manual page 33
+# run code uses sample program from original Altair manual page 33
 # @pdbperks 2020
 from microbit import *
 
@@ -9,12 +9,14 @@ column = 4
 databyte = "00000000"
 memory = [0 for x in range(256)]
 #sampleprogram = [58,128,0,71,58,129,0,128,50,130,0]
-sampleprogram = [0x3A,0x80,0x0,0x47,0x3A,0x81,0x0,0x80,0x32,0x82,0x0]
+sampleprogram = [
+    0x3A,0x80,0x0,0x47,0x3A,0x81,0x0,0x80,
+    0x32,0x82,0x0,0x0,0x0,0x0,0x0,0x0,
+    0x3A,0x80,0x3D,0x3D,0x3D,0x3D,0x3D,0x3D
+    ]
 pc = 0
 trace = False   #show accumulator value
-zeroflag = 0
-
-
+zeroflag = False
 
 def run():
     accumulator = 0
@@ -25,7 +27,7 @@ def run():
     while True:
         sleep(500)
         if trace:
-            #display.scroll('a:'+str(accumulator))
+            display.scroll('a:'+str(accumulator))
             display.scroll('z:'+str(zeroflag))
         memRead(pc)
         if memory[pc] ==0:
@@ -51,7 +53,7 @@ def run():
             pc = pc + 1
         elif memory[pc] == 0x3D:    #61: #DCR_A
             accumulator = accumulator - 1
-            zeroflag = accumulator ! = 0
+            zeroflag = (accumulator == 0)
             pc = pc + 1
         elif memory[pc] == 0x47:    #71 : #MOV_B,A
             registerB = accumulator
