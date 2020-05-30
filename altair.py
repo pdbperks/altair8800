@@ -8,7 +8,8 @@ row = 0
 column = 4
 databyte = "00000000"
 memory = [0 for x in range(256)]
-sampleprogram = [58,128,0,71,58,129,0,128,50,130,0]
+#sampleprogram = [58,128,0,71,58,129,0,128,50,130,0]
+sampleprogram = [0x3A,0x80,0x0,0x47,0x3A,0x81,0x0,0x80,0x32,0x82,0x0]
 pc = 0
 trace = False   #show accumulator value
 
