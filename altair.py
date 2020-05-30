@@ -12,46 +12,57 @@ memory = [0 for x in range(256)]
 sampleprogram = [0x3A,0x80,0x0,0x47,0x3A,0x81,0x0,0x80,0x32,0x82,0x0]
 pc = 0
 trace = False   #show accumulator value
+zeroflag = 0
+
+
 
 def run():
     accumulator = 0
     registerB = 0
     registerC = 0
-    global pc, memory
+    global pc, memory, zeroflag
     display.scroll('>')
     while True:
         sleep(500)
         if trace:
-            display.scroll('a:'+str(accumulator))
+            #display.scroll('a:'+str(accumulator))
+            display.scroll('z:'+str(zeroflag))
         memRead(pc)
         if memory[pc] ==0:
             break
         # implemented 8080 operating codes
-        elif memory[pc] == 7: #RLC rotate left <<
+        elif memory[pc] == 0x07:    #7: #RLC rotate left <<
             accumulator = accumulator << 1
             pc = pc + 1
-        elif memory[pc] == 15: #RLR rotate right <<
+        elif memory[pc] == 0x0D:    #13: #DCR_C RegC -1
+            registerC = registerC - 1
+            pc = pc + 1            
+        elif memory[pc] == 0x0F:    #15: #RLR rotate right <<
             accumulator = accumulator >> 1
             pc = pc + 1
-        elif memory[pc] == 50:   #STA
+        elif memory[pc] == 0x32:    #50:   #STA
             memory[memory[pc + 1]] = accumulator
             pc = pc + 3
-        elif memory[pc] == 58:    #LDA
+        elif memory[pc] == 0x3A:    #58:    #LDA
             accumulator = memory[memory[pc + 1]]
             pc = pc + 3
-        elif memory[pc] == 60: #INR_A
+        elif memory[pc] == 0x3C:    #60: #INR_A
             accumulator = accumulator + 1
             pc = pc + 1
-        elif memory[pc] == 61: #DCR_A
+        elif memory[pc] == 0x3D:    #61: #DCR_A
             accumulator = accumulator - 1
+            zeroflag = accumulator ! = 0
             pc = pc + 1
-        elif memory[pc] == 71 : #MOV
+        elif memory[pc] == 0x47:    #71 : #MOV_B,A
             registerB = accumulator
             pc = pc + 1
-        elif memory[pc] == 128:  #ADD
+        elif memory[pc] == 0x4F:    #71 : #MOV_C,A
+            registerC = accumulator
+            pc = pc + 1
+        elif memory[pc] == 0x80:    #128:  #ADD
             accumulator = accumulator + registerB
             pc = pc + 1
-        elif memory[pc] == 195:   #JMP
+        elif memory[pc] == 0x3C:    #195:   #JMP
             pc = memory[pc + 1]
         elif button_a.is_pressed():
             break
