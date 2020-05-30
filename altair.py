@@ -1,6 +1,6 @@
 # Altair 8800 emulator for BBC Micro:bit
 # UI code
-# run code uses sample program from original Altair manual page 33
+# run code for sample program in original manual page 33
 # @pdbperks 2020
 from microbit import *
 
@@ -11,12 +11,13 @@ memory = [0 for x in range(256)]
 #sampleprogram = [58,128,0,71,58,129,0,128,50,130,0]
 sampleprogram = [
     0x3A,0x80,0x0,0x47,0x3A,0x81,0x0,0x80,
-    0x32,0x82,0x0,0x0,0x0,0x0,0x0,0x0,
-    0x3A,0x80,0x3D,0x3D,0x3D,0x3D,0x3D,0x3D
+    0x32,0x82,0x0,0x0,0x0,0x0,0x0,0xA,
+    0x3A,0x0F,0x0,0x4F,0x3C,0x0D,0xC2,0x14,
+    0x0,0x32,0x81,0x0
     ]
 pc = 0
 trace = False   #show accumulator value
-zeroflag = False
+zeroflag = True
 
 def run():
     accumulator = 0
@@ -38,6 +39,7 @@ def run():
             pc = pc + 1
         elif memory[pc] == 0x0D:    #13: #DCR_C RegC -1
             registerC = registerC - 1
+            zeroflag = (registerC == 0)
             pc = pc + 1            
         elif memory[pc] == 0x0F:    #15: #RLR rotate right <<
             accumulator = accumulator >> 1
@@ -50,6 +52,7 @@ def run():
             pc = pc + 3
         elif memory[pc] == 0x3C:    #60: #INR_A
             accumulator = accumulator + 1
+            zeroflag = (accumulator == 0)
             pc = pc + 1
         elif memory[pc] == 0x3D:    #61: #DCR_A
             accumulator = accumulator - 1
@@ -64,8 +67,13 @@ def run():
         elif memory[pc] == 0x80:    #128:  #ADD
             accumulator = accumulator + registerB
             pc = pc + 1
-        elif memory[pc] == 0x3C:    #195:   #JMP
+        elif memory[pc] == 0xC3:    #195:   #JMP
             pc = memory[pc + 1]
+        elif memory[pc] == 0xC2:    #194:   #JNZ
+            if !zeroflag:
+                pc = memory[pc + 1]
+            else:
+                pc = pc + 1
         elif button_a.is_pressed():
             break
     display.scroll('end')
