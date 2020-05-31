@@ -5,72 +5,72 @@
 from microbit import *
 
 row = 0
-column = 4
+col = 4
 databyte = "00000000"
-memory = [0 for x in range(128)]
-#sampleprogram = [58,128,0,71,58,129,0,128,50,130,0]
-sampleprogram = [
+memory = [0 for x in range(256)]
+#prog = [58,128,0,71,58,129,0,128,50,130,0]
+prog = bytearray([
     0x3A,0x0C,0x0,0x47,0x3A,0x0D,0x0,0x80,
     0x32,0x0F,0x0,0x00,0x01,0x02,0x04,0x0,
     0x3A,0x0E,0x0,0x4F,0x3C,0x0D,0xC2,0x14,
     0x0,0x32,0x0F,0x0
-    ]
+    ])
 pc = 0
-trace = False   #show accumulator value
-zeroflag = True
+tr = False   #show acc value
+zf = True
 
 def run():
-    accumulator = 0
-    registerB = 0
-    registerC = 0
-    global pc, memory, zeroflag
+    acc = 0
+    regB = 0
+    regC = 0
+    global pc, memory, zf
     display.scroll('>')
     while True:
         sleep(500)
-        if trace:
-            display.scroll('a:'+str(accumulator))
-            #display.scroll('z:'+str(zeroflag))
+        if tr:
+            display.scroll('a:'+str(acc))
+            #display.scroll('z:'+str(zf))
         memRead(pc)
         if memory[pc] ==0:
             break
         # implemented 8080 operating codes
         elif memory[pc] == 0x07:    #7: #RLC rotate left <<
-            accumulator = accumulator << 1
+            acc = acc << 1
             pc = pc + 1
         elif memory[pc] == 0x0D:    #13: #DCR_C RegC -1
-            registerC = registerC - 1
-            zeroflag = (registerC == 0)
+            regC = regC - 1
+            zf = (regC == 0)
             pc = pc + 1            
         elif memory[pc] == 0x0F:    #15: #RLR rotate right <<
-            accumulator = accumulator >> 1
+            acc = acc >> 1
             pc = pc + 1
         elif memory[pc] == 0x32:    #50:   #STA
-            memory[memory[pc + 1]] = accumulator
+            memory[memory[pc + 1]] = acc
             pc = pc + 3
         elif memory[pc] == 0x3A:    #58:    #LDA
-            accumulator = memory[memory[pc + 1]]
+            acc = memory[memory[pc + 1]]
             pc = pc + 3
         elif memory[pc] == 0x3C:    #60: #INR_A
-            accumulator = accumulator + 1
-            zeroflag = (accumulator == 0)
+            acc = acc + 1
+            zf = (acc == 0)
             pc = pc + 1
         elif memory[pc] == 0x3D:    #61: #DCR_A
-            accumulator = accumulator - 1
-            zeroflag = (accumulator == 0)
+            acc = acc - 1
+            zf = (acc == 0)
             pc = pc + 1
         elif memory[pc] == 0x47:    #71 : #MOV_B,A
-            registerB = accumulator
+            regB = acc
             pc = pc + 1
         elif memory[pc] == 0x4F:    #71 : #MOV_C,A
-            registerC = accumulator
+            regC = acc
             pc = pc + 1
         elif memory[pc] == 0x80:    #128:  #ADD
-            accumulator = accumulator + registerB
+            acc = acc + regB
             pc = pc + 1
         elif memory[pc] == 0xC3:    #195:   #JMP
             pc = memory[pc + 1]
         elif memory[pc] == 0xC2:    #194:   #JNZ
-            if zeroflag == False:
+            if zf == False:
                 pc = memory[pc + 1]
             else:
                 pc = pc + 3
@@ -87,7 +87,7 @@ def bin00(dec):
 
 #led matrix for data entry
 def level():
-    global row, column
+    global row, col
     for x in range(0, 4):
         display.set_pixel(x, 0, 0)
     for y in range(0, 5):
@@ -95,9 +95,9 @@ def level():
     row = accelerometer.get_x()     #pitch 2 row
     row = min(max(0,int(row/200) + 2),3) # roll sensitivity row/60=narrow 400=wide + tilt factor
     display.set_pixel(row, 0 , 1)
-    column = accelerometer.get_y()   # roll 4 bit columns
-    column = min(max(3,int(column/200) + 1),4)  #pitch sensitivity 200 horizontal 300 more vertical + tilt factor
-    display.set_pixel(4, column , 1)
+    col = accelerometer.get_y()   # roll 4 bit cols
+    col = min(max(3,int(col/200) + 1),4)  #pitch sensitivity 200 horizontal 300 more vertical + tilt factor
+    display.set_pixel(4, col , 1)
 
 #convert data rows to binary string
 def dataRead():
@@ -159,21 +159,21 @@ while True:
                         memRead(pc)
                     except OSError:
                         #if no file saved then load sample program
-                        for i, d in enumerate(sampleprogram):
+                        for i, d in enumerate(prog):
                             memory[i] = d
                         memRead(pc)
             elif clicks == 3:   #save
                 with open('data.bin','wb') as f:
                     f.write(bytearray(memory))
                 display.scroll('saved')
-            elif clicks == 4:   #toggle trace accumulator
-                trace ^= True
+            elif clicks == 4:   #toggle tr acc
+                tr ^= True
             elif clicks == 0: #no button clear data
                 databyte = "00000000"
                 dataWrite(databyte)
 
         else:
-            display.set_pixel(row, column , (7 * (display.get_pixel(row, column) < 1)))
+            display.set_pixel(row, col , (7 * (display.get_pixel(row, col) < 1)))
             dataRead()
 
     elif button_b.is_pressed():
