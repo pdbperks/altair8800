@@ -23,7 +23,7 @@ def run():
     regB = 0    #register B
     regC = 0    #register C
     global pc, memory, zf
-    display.scroll('>')
+    display.scroll('<')
     while True:
         sleep(500)
         if tr:
@@ -75,7 +75,7 @@ def run():
                 pc = pc + 3
         elif button_a.is_pressed():
             break
-    display.scroll('end')
+    display.scroll('>')
 
 def bin00(dec):
     bin0 = "00000000"
@@ -87,16 +87,17 @@ def bin00(dec):
 #led matrix for data entry
 def level():
     global row, col
+    bright = 3
     for x in range(0, 4):
         display.set_pixel(x, 0, 0)
     for y in range(0, 5):
         display.set_pixel(4, y, 0)
     row = accelerometer.get_x()     #pitch 2 row
-    row = min(max(0,int(row/200) + 2),3) # roll sensitivity row/60=narrow 400=wide + tilt factor
-    display.set_pixel(row, 0 , 1)
+    row = min(max(0,int(row/200) + 1),3) # roll sensitivity row/60=narrow 400=wide + tilt factor
+    display.set_pixel(row, 0 , bright)
     col = accelerometer.get_y()   # roll 4 bit cols
     col = min(max(3,int(col/200) + 1),4)  #pitch sensitivity 200 horizontal 300 more vertical + tilt factor
-    display.set_pixel(4, col , 1)
+    display.set_pixel(4, col , bright)
 
 #convert data rows to binary string
 def dataRead():
@@ -114,7 +115,7 @@ def dataRead():
 def dataWrite(db = databyte, ledrow = 3):
     #global databyte
     p = 0
-    bright = 4 + ledrow
+    bright = 6 + ledrow
     for y in range(ledrow,ledrow + 2):
         for x in range(0,4 ):
             if db[p] == "1":
