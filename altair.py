@@ -1,9 +1,6 @@
 # Altair 8800 emulator for BBC Micro:bit
 # UI code
 # run code for sample program in original manual page 33
-# @pdbperks 2# Altair 8800 emulator for BBC Micro:bit
-# UI code
-# run code for sample program in original manual page 33
 # @pdbperks 2020
 from microbit import *
 
