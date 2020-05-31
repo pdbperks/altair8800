@@ -4,10 +4,10 @@
 # @pdbperks 2020
 from microbit import *
 
-row = 0
+row = 0 # LED display
 col = 4
 databyte = "00000000"
-memory = [0 for x in range(256)]
+memory = bytearray([0 for x in range(256)])
 #prog = [58,128,0,71,58,129,0,128,50,130,0]
 prog = bytearray([
     0x3A,0x0C,0x0,0x47,0x3A,0x0D,0x0,0x80,
@@ -15,14 +15,14 @@ prog = bytearray([
     0x3A,0x0E,0x0,0x4F,0x3C,0x0D,0xC2,0x14,
     0x0,0x32,0x0F,0x0
     ])
-pc = 0
+pc = 0  #program counter
 tr = False   #show acc value
-zf = True
+zf = True   #zero flag
 
 def run():
-    acc = 0
-    regB = 0
-    regC = 0
+    acc = 0 #Accumulator
+    regB = 0    #register B
+    regC = 0    #register C
     global pc, memory, zf
     display.scroll('>')
     while True:
