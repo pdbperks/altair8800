@@ -2,7 +2,7 @@
 # UI code
 # run code for sample program in original manual page 33
 # @pdbperks 2020
-from microbit import *
+from microbit import display, button_a, button_b, accelerometer, sleep
 
 row = 0 # LED display
 col = 4
@@ -33,65 +33,65 @@ def run():
         # implemented 8080 operating codes
         if memory[pc] == 0x00:    #0: #NOP
             pc = pc + 1
-        elif memory[pc] == 0x07:    #7: #RLC rotate left <<
+        if memory[pc] == 0x07:    #7: #RLC rotate left <<
             acc = acc << 1
             pc = pc + 1
-        elif memory[pc] == 0x0D:    #13: #DCR_C RegC -1
+        if memory[pc] == 0x0D:    #13: #DCR_C RegC -1
             regC = regC - 1
             zf = (regC == 0)
             pc = pc + 1            
-        elif memory[pc] == 0x0F:    #15: #RLR rotate right <<
+        if memory[pc] == 0x0F:    #15: #RLR rotate right <<
             acc = acc >> 1
             pc = pc + 1
-        elif memory[pc] == 0x32:    #50:   #STA
+        if memory[pc] == 0x32:    #50:   #STA
             memory[memory[pc + 1]] = acc
             pc = pc + 3
-        elif memory[pc] == 0x3A:    #58:    #LDA
+        if memory[pc] == 0x3A:    #58:    #LDA
             acc = memory[memory[pc + 1]]
             pc = pc + 3
-        elif memory[pc] == 0x3C:    #60: #INR_A
+        if memory[pc] == 0x3C:    #60: #INR_A
             acc = acc + 1
             zf = (acc == 0)
             pc = pc + 1
-        elif memory[pc] == 0x3D:    #61: #DCR_A
+        if memory[pc] == 0x3D:    #61: #DCR_A
             acc = acc - 1
             zf = (acc == 0)
             pc = pc + 1
-        elif memory[pc] == 0x47:    #71 : #MOV_B,A
+        if memory[pc] == 0x47:    #71 : #MOV_B,A
             regB = acc
             pc = pc + 1
-        elif memory[pc] == 0x4F:    #71 : #MOV_C,A
+        if memory[pc] == 0x4F:    #71 : #MOV_C,A
             regC = acc
             pc = pc + 1
         if memory[pc] ==0x76: # HLT
             break
-        elif memory[pc] == 0x80:    #128:  #ADD
+        if memory[pc] == 0x80:    #128:  #ADD
             acc = acc + regB
             pc = pc + 1
-        elif memory[pc] == 0xA0:    #61: #ANA_B
+        if memory[pc] == 0xA0:    #61: #ANA_B
             acc = acc & regB
             zf = (acc == 0)
             pc = pc + 1
-        elif memory[pc] == 0xA8:    #61: #XRA_B
+        if memory[pc] == 0xA8:    #61: #XRA_B
             acc = acc ^ regB
             zf = (acc == 0)
             pc = pc + 1
-        elif memory[pc] == 0xAF:    #61: #XRA_A
+        if memory[pc] == 0xAF:    #61: #XRA_A
             acc = acc ^ acc
             zf = (acc == 0)
             pc = pc + 1
-        elif memory[pc] == 0xB0:    #61: #ORA_B
+        if memory[pc] == 0xB0:    #61: #ORA_B
             acc = acc | regB
             zf = (acc == 0)
             pc = pc + 1
-        elif memory[pc] == 0xC3:    #195:   #JMP
+        if memory[pc] == 0xC3:    #195:   #JMP
             pc = memory[pc + 1]
-        elif memory[pc] == 0xC2:    #194:   #JNZ
+        if memory[pc] == 0xC2:    #194:   #JNZ
             if zf == False:
                 pc = memory[pc + 1]
             else:
                 pc = pc + 3
-        elif button_a.is_pressed():
+        if button_a.is_pressed():
             break
     display.scroll('>')
 
@@ -170,7 +170,7 @@ while True:
             clicks = button_b.get_presses()
             if clicks == 1: #run
                 run()
-            elif clicks == 2:   #load mem.dat
+            if clicks == 2:   #load mem.dat
                     try:
                         with open('data.bin','rb') as f:
                             memory = list(f.read())
@@ -180,13 +180,13 @@ while True:
                         for i, d in enumerate(prog):
                             memory[i] = d
                         memRead(pc)
-            elif clicks == 3:   #save
+            if clicks == 3:   #save
                 with open('data.bin','wb') as f:
                     f.write(bytearray(memory))
                 display.scroll('saved')
-            elif clicks == 4:   #toggle tr acc
+            if clicks == 4:   #toggle tr acc
                 tr ^= True
-            elif clicks == 0: #no button clear data
+            if clicks == 0: #no button clear data
                 databyte = "00000000"
                 dataWrite(databyte)
 
@@ -207,14 +207,14 @@ while True:
                 memWrite(pc)
                 pc = min(pc + 1,256)
                 memRead(pc)
-            elif clicks == 2:
+            if clicks == 2:
                 pc = max(0,pc - 1)
                 memRead(pc)
-            elif clicks == 3:   #goto mem addr from data entry
+            if clicks == 3:   #goto mem addr from data entry
                 dataRead()
                 pc = int(databyte, 2)
                 memRead(pc)
-            elif clicks == 0: #no button a click print hex
+            if clicks == 0: #no button a click print hex
                 display.scroll(hex(int(databyte, 2)))
                 memWrite(pc)
         else:
