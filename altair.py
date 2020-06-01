@@ -2,7 +2,7 @@
 # UI code
 # run code for sample program in original manual page 33
 # @pdbperks 2020
-from microbit import *
+from microbit import display, button_a, button_b, accelerometer, sleep
 
 row = 0 # LED display
 col = 4
@@ -10,9 +10,9 @@ databyte = "00000000"
 memory = bytearray([0 for x in range(256)])
 prog = bytearray([
     0x3A,0x0C,0x0,0x47,0x3A,0x0D,0x0,0x80,
-    0x32,0x0F,0x0,0x00,0x01,0x02,0x04,0x0,
+    0x32,0x0F,0x0,0x76,0x01,0x02,0x04,0x0,
     0x3A,0x0E,0x0,0x4F,0x3C,0x0D,0xC2,0x14,
-    0x0,0x32,0x0F,0x0
+    0x0,0x32,0x0F,0x0,0x76
     ])
 pc = 0  #program counter
 tr = False   #show acc value
@@ -22,58 +22,77 @@ def run():
     acc = 0 #Accumulator
     regB = 0    #register B
     regC = 0    #register C
+    rpc = 0		#temp pc for loop
     global pc, memory, zf
     display.scroll('<')
     while True:
         sleep(500)
+        memRead(pc)
+        rpc = pc
         if tr:
             display.scroll('a:'+str(acc))
-            #display.scroll('z:'+str(zf))
-        memRead(pc)
-        if memory[pc] ==0:
-            break
         # implemented 8080 operating codes
-        elif memory[pc] == 0x07:    #7: #RLC rotate left <<
+        if memory[rpc] == 0x00:    #0: #NOP
+            pc = pc + 1
+        if memory[rpc] == 0x07:    #7: #RLC rotate left <<
             acc = acc << 1
             pc = pc + 1
-        elif memory[pc] == 0x0D:    #13: #DCR_C RegC -1
+        if memory[rpc] == 0x0D:    #13: #DCR_C RegC -1
             regC = regC - 1
             zf = (regC == 0)
             pc = pc + 1            
-        elif memory[pc] == 0x0F:    #15: #RLR rotate right <<
+        if memory[rpc] == 0x0F:    #15: #RLR rotate right <<
             acc = acc >> 1
             pc = pc + 1
-        elif memory[pc] == 0x32:    #50:   #STA
+        if memory[rpc] == 0x32:    #50:   #STA
             memory[memory[pc + 1]] = acc
             pc = pc + 3
-        elif memory[pc] == 0x3A:    #58:    #LDA
+        if memory[rpc] == 0x3A:    #58:    #LDA
             acc = memory[memory[pc + 1]]
             pc = pc + 3
-        elif memory[pc] == 0x3C:    #60: #INR_A
+        if memory[rpc] == 0x3C:    #60: #INR_A
             acc = acc + 1
             zf = (acc == 0)
             pc = pc + 1
-        elif memory[pc] == 0x3D:    #61: #DCR_A
+        if memory[rpc] == 0x3D:    #61: #DCR_A
             acc = acc - 1
             zf = (acc == 0)
             pc = pc + 1
-        elif memory[pc] == 0x47:    #71 : #MOV_B,A
+        if memory[rpc] == 0x47:    #71 : #MOV_B,A
             regB = acc
             pc = pc + 1
-        elif memory[pc] == 0x4F:    #71 : #MOV_C,A
+        if memory[rpc] == 0x4F:    #71 : #MOV_C,A
             regC = acc
             pc = pc + 1
-        elif memory[pc] == 0x80:    #128:  #ADD
+        if memory[rpc] ==0x76: # HLT
+            break
+        if memory[rpc] == 0x80:    #128:  #ADD
             acc = acc + regB
             pc = pc + 1
-        elif memory[pc] == 0xC3:    #195:   #JMP
+        if memory[rpc] == 0xA0:    #61: #ANA_B
+            acc = acc & regB
+            zf = (acc == 0)
+            pc = pc + 1
+        if memory[rpc] == 0xA8:    #61: #XRA_B
+            acc = acc ^ regB
+            zf = (acc == 0)
+            pc = pc + 1
+        if memory[rpc] == 0xAF:    #61: #XRA_A
+            acc = acc ^ acc
+            zf = (acc == 0)
+            pc = pc + 1
+        if memory[rpc] == 0xB0:    #61: #ORA_B
+            acc = acc | regB
+            zf = (acc == 0)
+            pc = pc + 1
+        if memory[rpc] == 0xC3:    #195:   #JMP
             pc = memory[pc + 1]
-        elif memory[pc] == 0xC2:    #194:   #JNZ
+        if memory[rpc] == 0xC2:    #194:   #JNZ
             if zf == False:
                 pc = memory[pc + 1]
             else:
                 pc = pc + 3
-        elif button_a.is_pressed():
+        if button_a.is_pressed():
             break
     display.scroll('>')
 
@@ -148,7 +167,7 @@ while True:
             sleep(100)#wait until button released
             longpress = longpress + 1
         #clicks = button_a.get_presses()
-        if longpress > 10:  #clear display if button down >1second 
+        if longpress > 5:  #optons if button down >0.5second 
             clicks = button_b.get_presses()
             if clicks == 1: #run
                 run()
@@ -183,7 +202,7 @@ while True:
         while button_b.is_pressed():
             sleep(100)
             longpress = longpress + 1
-        if longpress > 5:  #clear display if button down >0.5second
+        if longpress > 5:  #options if button down >0.5second
             clicks = button_a.get_presses()
             if clicks == 1:
                 memWrite(pc)
