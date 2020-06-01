@@ -22,71 +22,72 @@ def run():
     acc = 0 #Accumulator
     regB = 0    #register B
     regC = 0    #register C
+    rpc = 0		#temp pc for loop
     global pc, memory, zf
     display.scroll('<')
     while True:
         sleep(500)
+        memRead(pc)
+        rpc = pc
         if tr:
             display.scroll('a:'+str(acc))
-            #display.scroll('z:'+str(zf))
-        memRead(pc)
         # implemented 8080 operating codes
-        if memory[pc] == 0x00:    #0: #NOP
+        if memory[rpc] == 0x00:    #0: #NOP
             pc = pc + 1
-        if memory[pc] == 0x07:    #7: #RLC rotate left <<
+        if memory[rpc] == 0x07:    #7: #RLC rotate left <<
             acc = acc << 1
             pc = pc + 1
-        if memory[pc] == 0x0D:    #13: #DCR_C RegC -1
+        if memory[rpc] == 0x0D:    #13: #DCR_C RegC -1
             regC = regC - 1
             zf = (regC == 0)
             pc = pc + 1            
-        if memory[pc] == 0x0F:    #15: #RLR rotate right <<
+        if memory[rpc] == 0x0F:    #15: #RLR rotate right <<
             acc = acc >> 1
             pc = pc + 1
-        if memory[pc] == 0x32:    #50:   #STA
+        if memory[rpc] == 0x32:    #50:   #STA
             memory[memory[pc + 1]] = acc
             pc = pc + 3
-        if memory[pc] == 0x3A:    #58:    #LDA
+        if memory[rpc] == 0x3A:    #58:    #LDA
             acc = memory[memory[pc + 1]]
             pc = pc + 3
-        if memory[pc] == 0x3C:    #60: #INR_A
+        if memory[rpc] == 0x3C:    #60: #INR_A
             acc = acc + 1
             zf = (acc == 0)
             pc = pc + 1
-        if memory[pc] == 0x3D:    #61: #DCR_A
+        if memory[rpc] == 0x3D:    #61: #DCR_A
             acc = acc - 1
             zf = (acc == 0)
             pc = pc + 1
-        if memory[pc] == 0x47:    #71 : #MOV_B,A
+        if memory[rpc] == 0x47:    #71 : #MOV_B,A
             regB = acc
             pc = pc + 1
-        if memory[pc] == 0x4F:    #71 : #MOV_C,A
+        if memory[rpc] == 0x4F:    #71 : #MOV_C,A
             regC = acc
             pc = pc + 1
-        if memory[pc] ==0x76: # HLT
+        if memory[rpc] ==0x76: # HLT
             break
-        if memory[pc] == 0x80:    #128:  #ADD
+        if memory[rpc] == 0x80:    #128:  #ADD
             acc = acc + regB
             pc = pc + 1
-        if memory[pc] == 0xA0:    #61: #ANA_B
+        if memory[rpc] == 0xA0:    #61: #ANA_B
             acc = acc & regB
             zf = (acc == 0)
             pc = pc + 1
-        if memory[pc] == 0xA8:    #61: #XRA_B
+        if memory[rpc] == 0xA8:    #61: #XRA_B
             acc = acc ^ regB
             zf = (acc == 0)
             pc = pc + 1
-        if memory[pc] == 0xAF:    #61: #XRA_A
+        if memory[rpc] == 0xAF:    #61: #XRA_A
             acc = acc ^ acc
             zf = (acc == 0)
             pc = pc + 1
-        if memory[pc] == 0xB0:    #61: #ORA_B
+        if memory[rpc] == 0xB0:    #61: #ORA_B
             acc = acc | regB
             zf = (acc == 0)
             pc = pc + 1
-        if memory[pc] == 0xC3:    #195:   #JMP
+        if memory[rpc] == 0xC3:    #195:   #JMP
             pc = memory[pc + 1]
-        if memory[pc] == 0xC2:    #194:   #JNZ
+        if memory[rpc] == 0xC2:    #194:   #JNZ
             if zf == False:
                 pc = memory[pc + 1]
             else:
@@ -166,11 +167,11 @@ while True:
             sleep(100)#wait until button released
             longpress = longpress + 1
         #clicks = button_a.get_presses()
-        if longpress > 10:  #clear display if button down >1second 
+        if longpress > 5:  #optons if button down >0.5second 
             clicks = button_b.get_presses()
             if clicks == 1: #run
                 run()
-            if clicks == 2:   #load mem.dat
+            elif clicks == 2:   #load mem.dat
                     try:
                         with open('data.bin','rb') as f:
                             memory = list(f.read())
@@ -180,13 +181,13 @@ while True:
                         for i, d in enumerate(prog):
                             memory[i] = d
                         memRead(pc)
-            if clicks == 3:   #save
+            elif clicks == 3:   #save
                 with open('data.bin','wb') as f:
                     f.write(bytearray(memory))
                 display.scroll('saved')
-            if clicks == 4:   #toggle tr acc
+            elif clicks == 4:   #toggle tr acc
                 tr ^= True
-            if clicks == 0: #no button clear data
+            elif clicks == 0: #no button clear data
                 databyte = "00000000"
                 dataWrite(databyte)
 
@@ -201,20 +202,20 @@ while True:
         while button_b.is_pressed():
             sleep(100)
             longpress = longpress + 1
-        if longpress > 5:  #clear display if button down >0.5second
+        if longpress > 5:  #options if button down >0.5second
             clicks = button_a.get_presses()
             if clicks == 1:
                 memWrite(pc)
                 pc = min(pc + 1,256)
                 memRead(pc)
-            if clicks == 2:
+            elif clicks == 2:
                 pc = max(0,pc - 1)
                 memRead(pc)
-            if clicks == 3:   #goto mem addr from data entry
+            elif clicks == 3:   #goto mem addr from data entry
                 dataRead()
                 pc = int(databyte, 2)
                 memRead(pc)
-            if clicks == 0: #no button a click print hex
+            elif clicks == 0: #no button a click print hex
                 display.scroll(hex(int(databyte, 2)))
                 memWrite(pc)
         else:
