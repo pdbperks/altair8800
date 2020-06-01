@@ -31,9 +31,7 @@ def run():
             #display.scroll('z:'+str(zf))
         memRead(pc)
         # implemented 8080 operating codes
-        if memory[pc] ==0x76: # HLT
-            break
-        elif memory[pc] == 0x00:    #0: #NOP
+        if memory[pc] == 0x00:    #0: #NOP
             pc = pc + 1
         elif memory[pc] == 0x07:    #7: #RLC rotate left <<
             acc = acc << 1
@@ -65,8 +63,26 @@ def run():
         elif memory[pc] == 0x4F:    #71 : #MOV_C,A
             regC = acc
             pc = pc + 1
+        if memory[pc] ==0x76: # HLT
+            break
         elif memory[pc] == 0x80:    #128:  #ADD
             acc = acc + regB
+            pc = pc + 1
+        elif memory[pc] == 0xA0:    #61: #ANA_B
+            acc = acc & regB
+            zf = (acc == 0)
+            pc = pc + 1
+        elif memory[pc] == 0xA8:    #61: #XRA_B
+            acc = acc ^ regB
+            zf = (acc == 0)
+            pc = pc + 1
+        elif memory[pc] == 0xAF:    #61: #XRA_A
+            acc = acc ^ acc
+            zf = (acc == 0)
+            pc = pc + 1
+        elif memory[pc] == 0xB0:    #61: #ORA_B
+            acc = acc | regB
+            zf = (acc == 0)
             pc = pc + 1
         elif memory[pc] == 0xC3:    #195:   #JMP
             pc = memory[pc + 1]
