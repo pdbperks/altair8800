@@ -40,8 +40,13 @@ Decimal Hex Binary  Mnemonic    Bytes   Action
 194 0xC2    1100 0010   JNZ     3   Jump to address if zeroflag false 
 195 0xC3    1100 0111   JMP     3   Jump to address
 
-On reboot, the emulator will have a clear memory. If you load a program (A, 3 clicks B) it will load the sample program given in the Altair manual. If you have saved your own program then that will be loaded. You can toggle a trace feature for the contents of the Accumulator (A, 4 clicks B) which is useful for debugging.
-I have added a program at memory address 0x10 (16) to demonstrate JNZ op code. I have also changed the memory addresses used by the sample program so that data examples are preloaded with the code: add contents of memory addresses 12 and 13, store the answer in memory address 15.
+On reboot, the emulator will have a clear memory. 
+If you load a program (A, 3 clicks B) it will load the sample program given in the Altair manual. 
+If you have saved your own program then that will be loaded. 
+You can toggle a trace feature for the contents of the Accumulator (A, 4 clicks B) which is useful for debugging.
+I have added a program at memory address 0x10 (16) to demonstrate JNZ op code. 
+I have also changed the memory addresses used by the sample program so that data examples are preloaded with the code: 
+add contents of memory addresses 12 and 13, store the answer in memory address 15.
 
 Add Mnemonic  Binary     Action
 0   LDA     0011 1010   Load Accumulator with contents of address
