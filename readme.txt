@@ -1,9 +1,11 @@
 # altair8800
 8-bit computer simulation for the BBC micro:bit
-The simulator demonstrates 8-bit programming with the ability to save and load programs: it also works as a simple binary to decimal or hexadecimal translator.
+The simulator demonstrates 8-bit programming with the ability to save and load programs: 
+it also works as a simple binary to decimal or hexadecimal translator.
 
+Tilt the board to select the active column and row for data LED.
 The button functions:
-Button A: press to toggle data LED. Long press to clear data LEDs.
+Button A: press to toggle data LED. Long press to clear all data LEDs.
 Run: Hold Button A, press button B once. Release both buttons.
 Load: Hold Button A, press button B twice. Release both buttons.
 Save: Hold Button A, press button B thrice. Release both buttons.
@@ -15,7 +17,9 @@ Write. PC++: Hold Button B, press button A once. Release both buttons.
 PC--. Read: Hold Button B, press button A twice. Release both buttons.
 Goto: Hold Button B, press button A thrice. Release both buttons.
 
-Here is a list of the implemented operating codes using the Accumulator, Register B, Register C, and zeroflag. I am providing two address bytes although one would be perfectly functional since program memory is currently set at 256 bytes. No further additions are now envisaged due to memory allocation limits.
+Here is a list of the implemented operating codes using the Accumulator, Register B, Register C, and zeroflag. 
+I am providing two address bytes although one would be perfectly functional since program memory is currently set at 256 bytes. 
+No further additions are now envisaged due to memory allocation limits.
 
 Decimal Hex Binary  Mnemonic    Bytes   Action
 7   0x07    0000 0111   RLC     1   Accumulator bit shift left
