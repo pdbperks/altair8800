@@ -172,21 +172,35 @@ while True:
             if clicks == 1: #run
                 run()
             elif clicks == 2:   #load mem.dat
+                    #i = 0
                     try:
                         with open('data.bin','rb') as f:
-                            memory = list(f.read())
+                            #split the file read in two to avoid MemoryError
+                            byte = f.read(100)
+                            for i, d in enumerate(byte):
+                                memory[i] = d
+                            byte = f.read(156)
+                            for i, d in enumerate(byte):
+                                memory[i+100] = d
+                            #memory = list(f.read())
                         memRead(pc)
-                    except OSError:
+                    #except MemoryError:
+                    #    display.scroll('oops')
+                    except OSError or MemoryError:
                         #if no file saved then load sample program
                         for i, d in enumerate(prog):
                             memory[i] = d
                         memRead(pc)
             elif clicks == 3:   #save
                 with open('data.bin','wb') as f:
-                    f.write(bytearray(memory))
+                    f.write((memory))
                 display.scroll('saved')
             elif clicks == 4:   #toggle tr acc
                 tr ^= True
+            elif clicks == 5:   #reload sample program
+                for i, d in enumerate(prog):
+                    memory[i] = d
+                memRead(pc)
             elif clicks == 0: #no button clear data
                 databyte = "00000000"
                 dataWrite(databyte)
@@ -206,7 +220,7 @@ while True:
             clicks = button_a.get_presses()
             if clicks == 1:
                 memWrite(pc)
-                pc = min(pc + 1,256)
+                pc = min(pc + 1,255)
                 memRead(pc)
             elif clicks == 2:
                 pc = max(0,pc - 1)
