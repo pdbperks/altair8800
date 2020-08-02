@@ -9,6 +9,7 @@ Run: Hold Button A, press button B once. Release both buttons.
 Load: Hold Button A, press button B twice. Release both buttons.  
 Save: Hold Button A, press button B thrice. Release both buttons.  
 Trace: Hold Button A, press button B four times. Release both buttons.  
+Reload sample code: Hold Button A, press button B five times. Release both buttons.  
 Halt program execution: hold Button A.
 
 Button B: press for decimal. Long press hexadecimal.  
@@ -43,6 +44,7 @@ No further additions are now envisaged due to memory allocation limits.
 On reboot, the emulator will have a clear memory.   
 If you load a program (A, 3 clicks B) it will load the sample program given in the Altair manual.  
 If you have saved your own program then that will be loaded.  
+Use (A, 5 clicks B) to revert to the sample program.  
 You can toggle a trace feature for the contents of the Accumulator (A, 4 clicks B) which is useful for debugging.  
 I have added a program at memory address 0x10 (16) to demonstrate JNZ op code.  
 I have also changed the memory addresses used by the sample program so that data examples are preloaded with the code:  
