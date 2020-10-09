@@ -171,6 +171,7 @@ while True:
             clicks = button_b.get_presses()
             if clicks == 1: #run
                 run()
+                memRead(pc)
             elif clicks == 2:   #load mem.dat
                     #i = 0
                     try:
